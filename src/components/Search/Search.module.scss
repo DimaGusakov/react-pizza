@@ -22,3 +22,15 @@
   height: 24px;
   opacity: 0.3;
 }
+
+.close {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  right: 10px;
+  top: 14px;
+  opacity: 0.3;
+  &:hover {
+    opacity: 1;
+  }
+}

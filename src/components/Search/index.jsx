@@ -1,9 +1,36 @@
 import React from 'react';
 import styles from './Search.module.scss';
+import debounce from 'lodash.debounce';
 
 import { SearchContext } from '../../App';
+import { setSearchValue } from '../../redux/slices/filterSlice';
+import { useDispatch } from 'react-redux';
+
 export default function Search() {
-  const { searchValue, setSearchValue } = React.useContext(SearchContext);
+  const dispatch = useDispatch();
+  const [value, setValue] = React.useState('');
+
+  const inputRef = React.useRef();
+
+  const onClickClear = () => {
+    dispatch(setSearchValue(''));
+    setValue('');
+    inputRef.current.focus();
+  };
+
+  const updateSearchValue = React.useCallback(
+    debounce((value) => {
+      dispatch(setSearchValue(value));
+    }, 250),
+    [],
+  );
+
+  const onChangeInput = (event) => {
+    setValue(event.target.value);
+    updateSearchValue(event.target.value);
+  };
+
+  React.useEffect(() => {}, []);
   return (
     <div className={styles.root}>
       <svg
@@ -19,12 +46,31 @@ export default function Search() {
         />
       </svg>
       <input
-        value={searchValue}
-        onChange={(e) => setSearchValue(e.target.value)}
-        type="search"
+        ref={inputRef}
+        value={value}
+        onChange={onChangeInput}
         className={styles.input}
         placeholder="Поиск пиццы ..."
       />
+      {value && (
+        <svg
+          className={styles.close}
+          onClick={onClickClear}
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none">
+          <g id="Menu / Close_MD">
+            <path
+              id="Vector"
+              d="M18 18L12 12M12 12L6 6M12 12L18 6M12 12L6 18"
+              stroke="#000000"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </g>
+        </svg>
+      )}
     </div>
   );
 }
