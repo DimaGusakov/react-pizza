@@ -1,8 +1,7 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { setCategoryId, setCurrentPage, setFilters } from '../redux/slices/filterSlice';
 import qs from 'qs';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 import Categories from '../components/Categories';
@@ -11,27 +10,30 @@ import PizzaBlock from '../components/PizzaBlock';
 import Skeleton from '../components/PizzaBlock/Skeleton';
 import Pagination from '../components/Pagination';
 import { fetchPizzas } from '../redux/slices/pizzasSlice';
+import { RootState, useAppDispatch } from '../redux/store';
 
-export default function Home() {
+const Home = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const isSearch = React.useRef(false);
   const isMounted = React.useRef(false);
+  const isUrlParsed = React.useRef(false);
 
-  const { categoryId, sort, currentPage, searchValue } = useSelector((state) => state.filter);
-  const { items, status } = useSelector((state) => state.pizza);
+  const { categoryId, sort, currentPage, searchValue } = useSelector(
+    (state: RootState) => state.filter,
+  );
+  const { items, status } = useSelector((state: RootState) => state.pizza);
   const sortType = sort.sortProperty;
 
-  const onClickCategory = (id) => {
+  const onClickCategory = React.useCallback((id: number) => {
     dispatch(setCategoryId(id));
-  };
+  }, []);
 
-  const onChangePage = (num) => {
+  const onChangePage = (num: number) => {
     dispatch(setCurrentPage(num));
   };
 
-  const fetchData = async () => {
+  const fetchData = React.useCallback(() => {
     const order = sortType.includes('-') ? 'desc' : 'asc';
     const sortBy = sortType.replace('-', '');
     const category = categoryId > 0 ? `category=${categoryId}&` : '';
@@ -42,19 +44,11 @@ export default function Home() {
         category,
         sortBy,
         order,
-        currentPage,
+        currentPage: String(currentPage),
         search,
       }),
     );
-  };
-
-  React.useEffect(() => {
-    window.scrollTo(0, 0);
-    if (!isSearch.current) {
-      fetchData();
-    }
-    isSearch.current = false;
-  }, [categoryId, sortType, currentPage, searchValue]);
+  }, [dispatch, categoryId, sortType, currentPage, searchValue]);
 
   React.useEffect(() => {
     if (window.location.search) {
@@ -62,13 +56,22 @@ export default function Home() {
       const sort = list.find((obj) => obj.sortProperty === params.sortProperty);
       dispatch(
         setFilters({
-          ...params,
-          sort,
+          categoryId: Number(params.categoryId),
+          currentPage: Number(params.currentPage),
+          sort: sort || list[0],
+          searchValue: '',
         }),
       );
-      isSearch.current = true;
     }
-  }, []);
+    isUrlParsed.current = true;
+  }, [dispatch]);
+
+  React.useEffect(() => {
+    if (isUrlParsed.current) {
+      window.scrollTo(0, 0);
+      fetchData();
+    }
+  }, [categoryId, sortType, currentPage, searchValue, fetchData]);
 
   React.useEffect(() => {
     if (isMounted.current) {
@@ -80,9 +83,9 @@ export default function Home() {
       navigate(`?${queryString}`);
     }
     isMounted.current = true;
-  }, [categoryId, sortType, currentPage]);
+  }, [categoryId, sortType, currentPage, navigate, sort.sortProperty]);
 
-  const pizza = items.map((pizza) => <PizzaBlock key={pizza.id} {...pizza} />);
+  const pizzas = items.map((pizza) => <PizzaBlock key={pizza.id} {...pizza} />);
   const skeleton = [...new Array(6)].map((_, index) => <Skeleton key={index} />);
 
   return (
@@ -98,9 +101,11 @@ export default function Home() {
           <p>К сожалению, не удалось получить пиццы. Попробуйте повторить попытку позже.</p>
         </div>
       ) : (
-        <div className="content__items">{status === 'loading' ? skeleton : pizza}</div>
+        <div className="content__items">{status === 'loading' ? skeleton : pizzas}</div>
       )}
       <Pagination value={currentPage} onPageChange={onChangePage} />
     </div>
   );
-}
+};
+
+export default Home;

@@ -2,10 +2,22 @@ import React from 'react';
 import PizzaLogo from '../assets/img/pizza-logo.svg';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import Search from './Search/index';
+import { RootState } from '../redux/store';
 
-import Search from './Search';
 export default function Header() {
-  const { totalPrice, items, totalCount } = useSelector((state) => state.cart);
+  const { items, totalPrice, totalCount } = useSelector((state: RootState) => state.cart);
+
+  const isMounted = React.useRef(false);
+
+  React.useEffect(() => {
+    if (isMounted.current) {
+      const json = JSON.stringify(items);
+      console.log(json);
+      localStorage.setItem('cart', json);
+    }
+    isMounted.current = true;
+  }, [items]);
 
   return (
     <div className="header">
