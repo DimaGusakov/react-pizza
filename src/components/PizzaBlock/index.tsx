@@ -34,7 +34,7 @@ const PizzaBlock: React.FC<PizzaBlockProps> = ({ id, title, price, imageUrl, siz
       price,
       imageUrl,
       type: typeNames[typeActive],
-      size: sizeActive,
+      size: sizes[sizeActive],
       count: 0,
     };
     dispatch(addItem(item));

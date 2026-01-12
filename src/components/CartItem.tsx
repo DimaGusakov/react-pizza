@@ -12,7 +12,15 @@ type CartItemProps = {
   size: number;
 };
 
-const CartItemBlock: React.FC<CartItemProps> = ({ id, title, type, price, count, imageUrl }) => {
+const CartItemBlock: React.FC<CartItemProps> = ({
+  id,
+  title,
+  type,
+  price,
+  count,
+  imageUrl,
+  size,
+}) => {
   const dispatch = useDispatch();
 
   const onClickPlus = () => {
@@ -38,7 +46,9 @@ const CartItemBlock: React.FC<CartItemProps> = ({ id, title, type, price, count,
       </div>
       <div className="cart__item-info">
         <h3>{title}</h3>
-        <p>{type} тесто, 26 см.</p>
+        <p>
+          {type} тесто, {size} см.
+        </p>
       </div>
       <div className="cart__item-count">
         <button

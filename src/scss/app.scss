@@ -39,6 +39,27 @@ body {
     justify-items: center;
   }
 
+  &__error-info {
+    text-align: center;
+    padding: 60px 20px;
+    margin: 40px 0;
+
+    h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: $black;
+    }
+
+    p {
+      font-size: 18px;
+      color: #777;
+      line-height: 1.5;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+  }
+
   &__top {
     display: flex;
     align-items: center;

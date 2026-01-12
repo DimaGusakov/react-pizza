@@ -100,8 +100,15 @@ const Home = () => {
           <h2>Произошла ошибка 😕</h2>
           <p>К сожалению, не удалось получить пиццы. Попробуйте повторить попытку позже.</p>
         </div>
+      ) : status === 'loading' ? (
+        <div className="content__items">{skeleton}</div>
+      ) : items.length === 0 ? (
+        <div className="content__error-info">
+          <h2>Пиццы не найдены 🍕</h2>
+          <p>К сожалению, по вашему запросу ничего не найдено. Попробуйте изменить параметры поиска.</p>
+        </div>
       ) : (
-        <div className="content__items">{status === 'loading' ? skeleton : pizzas}</div>
+        <div className="content__items">{pizzas}</div>
       )}
       <Pagination value={currentPage} onPageChange={onChangePage} />
     </div>
